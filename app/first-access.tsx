@@ -2,7 +2,7 @@ import { LoginHeader } from "@/components/headers/loginHeader";
 import { Text } from "@/components/PoppinsText";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "expo-router";
-import { Eye, EyeOff, Lock, User } from "lucide-react-native";
+import { Check, Eye, EyeOff, Lock, User } from "lucide-react-native";
 import { useState } from "react";
 import {
   Alert,
@@ -13,22 +13,34 @@ import {
   View,
 } from "react-native";
 
-export default function HomeScreen() {
+export default function FirstAccessScreen() {
   const [isShowingPassword, setIsShowingPassword] = useState(false);
   const [cpf, setCpf] = useState("");
   const [password, setPassword] = useState("");
-  const { signIn, isLoading } = useAuth();
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const { firstAccess, isLoading } = useAuth();
   const router = useRouter();
 
-  async function handleLogin() {
+  async function handleFirstAccess() {
     try {
-      if (!cpf || !password) {
+      if (!cpf || !password || !confirmPassword) {
         Alert.alert("Erro", "Preencha todos os campos");
         return;
       }
-      await signIn(cpf, password);
+      if (password !== confirmPassword) {
+        Alert.alert("Erro", "As senhas não coincidem");
+        return;
+      }
+
+      await firstAccess(cpf, password, confirmPassword);
+
+      Alert.alert(
+        "Sucesso",
+        "Senha criada com sucesso! Faça login para continuar.",
+      );
+      router.back();
     } catch (error: any) {
-      Alert.alert("Erro no login", error.message);
+      Alert.alert("Erro", error.message);
     }
   }
 
@@ -41,8 +53,11 @@ export default function HomeScreen() {
       >
         <View className="flex flex-col gap-8 items-start w-full">
           <View className="w-full flex flex-wrap flex-row items-center justify-center">
-            <Text className="text-primary-500 text-3xl font-poppins-semi-bold">
-              Entrar no InovAi
+            <Text className="text-primary-500 text-2xl font-poppins-semi-bold text-center">
+              Primeiro Acesso
+            </Text>
+            <Text className="text-secondary-400 text-sm font-poppins-regular text-center mt-2">
+              Confirme seu CPF e crie uma senha segura.
             </Text>
           </View>
 
@@ -63,12 +78,14 @@ export default function HomeScreen() {
           </View>
 
           <View className="flex flex-col gap-1 w-full">
-            <Text className="text-secondary-400  font-poppins-bold">Senha</Text>
+            <Text className="text-secondary-400  font-poppins-bold">
+              Nova Senha
+            </Text>
             <View className="flex flex-row gap-2 w-full items-center border-[#a3a3a3] border-b">
               <Lock color={"#ED6842"} />
               <TextInput
                 placeholderTextColor={"#a3a3a3"}
-                placeholder="Coloque sua senha"
+                placeholder="Crie uma senha"
                 className="flex-1 h-12"
                 secureTextEntry={!isShowingPassword}
                 value={password}
@@ -85,28 +102,42 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
           </View>
+
+          <View className="flex flex-col gap-1 w-full">
+            <Text className="text-secondary-400  font-poppins-bold">
+              Confirmar Senha
+            </Text>
+            <View className="flex flex-row gap-2 w-full items-center border-[#a3a3a3] border-b">
+              <Check color={"#ED6842"} />
+              <TextInput
+                placeholderTextColor={"#a3a3a3"}
+                placeholder="Confirme a senha"
+                className="flex-1 h-12"
+                secureTextEntry={!isShowingPassword}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+              />
+            </View>
+          </View>
         </View>
       </KeyboardAvoidingView>
-      <View className="w-full flex flex-col flex-1 p-4 py-14 justify-between">
-        <View className="w-full flex flex-col gap-6 items-center">
-          <TouchableOpacity
-            onPress={handleLogin}
-            disabled={isLoading}
-            className={`bg-secondary-500  flex items-center justify-center w-[80%] rounded-xl py-4 ${
-              isLoading ? "opacity-50" : ""
-            }`}
-          >
-            <Text className="text-white text-xl font-poppins-bold text-center">
-              ENTRAR
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => router.push("/first-access")}>
-            <Text className="text-secondary-500 text-base font-poppins-regular text-center underline">
-              Primeiro Acesso? Crie sua senha
-            </Text>
-          </TouchableOpacity>
-        </View>
+      <View className="w-full flex flex-col flex-1 p-4 py-8 justify-between">
+        <TouchableOpacity
+          onPress={handleFirstAccess}
+          disabled={isLoading}
+          className={`bg-secondary-500  flex items-center justify-center w-full rounded-xl py-4 ${
+            isLoading ? "opacity-50" : ""
+          }`}
+        >
+          <Text className="text-white text-xl font-poppins-bold text-center">
+            CRIAR SENHA
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.back()} className="mt-4">
+          <Text className="text-secondary-500 text-base font-poppins-regular text-center">
+            Voltar para Login
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );

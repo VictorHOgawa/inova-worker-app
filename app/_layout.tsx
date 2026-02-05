@@ -1,3 +1,4 @@
+import { AuthProvider } from "@/context/AuthContext";
 import { ContextProvider } from "@/context/contextProvider";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import {
@@ -34,26 +35,33 @@ export default function RootLayout() {
 
   return (
     <ContextProvider>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
+      <AuthProvider>
+        <ThemeProvider
+          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+        >
+          <Stack>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
 
-          <Stack.Screen name="home" options={{ headerShown: false }} />
-          <Stack.Screen name="routes" options={{ headerShown: false }} />
+            <Stack.Screen name="home" options={{ headerShown: false }} />
+            <Stack.Screen name="routes" options={{ headerShown: false }} />
 
-          <Stack.Screen
-            name="routeEquipment"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen name="startedRoute" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="loading"
-            options={{ headerShown: false, animation: "fade" }}
-          />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider>
+            <Stack.Screen
+              name="routeEquipment"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="startedRoute"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="loading"
+              options={{ headerShown: false, animation: "fade" }}
+            />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <StatusBar style="auto" />
+        </ThemeProvider>
+      </AuthProvider>
     </ContextProvider>
   );
 }
